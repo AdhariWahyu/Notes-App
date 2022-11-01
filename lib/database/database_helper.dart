@@ -13,9 +13,11 @@ class DatabaseHelper {
 
   static Future<Database> init() async {
     final dbPath = await getDatabasesPath();
-    return openDatabase(join(dbPath, 'notes.db'), version: 1,
-        onCreate: (newDb, version) {
-      newDb.execute('''
+    return openDatabase(
+      join(dbPath, 'notes.db'),
+      version: 3,
+      onCreate: (newDb, version) {
+        newDb.execute('''
         CREATE TABLE $TABLE_NOTES (
           $TABLE_NOTES_ID TEXT PRIMARY KEY,
           $TABLE_NOTES_TITLE TEXT,
@@ -25,7 +27,25 @@ class DatabaseHelper {
           $TABLE_NOTES_CREATEDAT TEXT
         )
         ''');
-    });
+      },
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion == 1 && newVersion == 2) {
+          db.execute('''
+          CREATE TABLE test_upgrade(
+          id TEXT PRIMARY KEY,
+          title TEXT
+          )
+          ''');
+        }
+
+        if (oldVersion == 2 && newVersion == 3) {
+          db.execute('''
+          ALTER TABLE $TABLE_NOTES
+          ADD COLUMN test_column_baru INTEGER DEFAULT 0
+          ''');
+        }
+      },
+    );
   }
 
   Future<List<Note>> getAllNote() async {
@@ -33,9 +53,9 @@ class DatabaseHelper {
     final results = await db.query('notes');
 
     List<Note> listNote = [];
-    results.forEach((data) {
+    for (var data in results) {
       listNote.add(Note.fromDb(data));
-    });
+    }
 
     return listNote;
   }
@@ -44,10 +64,55 @@ class DatabaseHelper {
     final db = await DatabaseHelper.init();
     Batch batch = db.batch();
 
-    listNote.forEach((note) {
-      batch.insert('notes', note.toDb());
-    });
+    for (var note in listNote) {
+      batch.insert(
+        'notes',
+        note.toDb(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
 
     await batch.commit();
+  }
+
+  Future<void> updateNote(Note note) async {
+    final db = await DatabaseHelper.init();
+    await db.update(
+      TABLE_NOTES,
+      note.toDb(),
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [note.id],
+    );
+  }
+
+  Future<void> toggleIsPinned(
+      String id, bool isPinned, DateTime updatedAt) async {
+    final db = await DatabaseHelper.init();
+    await db.update(
+      TABLE_NOTES,
+      {
+        TABLE_NOTES_ISPINNED: isPinned ? 1 : 0,
+        TABLE_NOTES_UPDATEDAT: updatedAt.toIso8601String(),
+      },
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteNote(String id) async {
+    final db = await DatabaseHelper.init();
+    await db.delete(
+      TABLE_NOTES,
+      where: '$TABLE_NOTES_ID = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> insertNote(Note note) async {
+    final db = await DatabaseHelper.init();
+    await db.insert(
+      TABLE_NOTES,
+      note.toDb(),
+    );
   }
 }

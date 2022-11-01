@@ -51,7 +51,6 @@ class Notes with ChangeNotifier {
     } catch (e) {
       return Future.error(e);
     }
-    
   }
 
   List<Note> get notes {
@@ -68,7 +67,15 @@ class Notes with ChangeNotifier {
         _notes[index] = _notes[index].copyWith(updatedAt: DateTime.now());
         notifyListeners();
         await NoteApi().toggleIsPinned(
-            id, _notes[index].isPinned, _notes[index].updatedAt);
+          id,
+          _notes[index].isPinned,
+          _notes[index].updatedAt,
+        );
+        await DatabaseHelper().toggleIsPinned(
+          id,
+          _notes[index].isPinned,
+          _notes[index].updatedAt,
+        );
       }
     } catch (e) {
       _notes[index].isPinned = !_notes[index].isPinned;
@@ -81,6 +88,7 @@ class Notes with ChangeNotifier {
     try {
       String id = await NoteApi().postNote(note);
       note = note.copyWith(id: id);
+      await DatabaseHelper().insertNote(note);
       _notes.add(note);
       notifyListeners();
     } catch (e) {
@@ -95,6 +103,7 @@ class Notes with ChangeNotifier {
   Future<void> updateNote(Note newNote) async {
     try {
       await NoteApi().updateNote(newNote);
+      await DatabaseHelper().updateNote(newNote);
       int index = _notes.indexWhere((note) => note.id == newNote.id);
       _notes[index] = newNote;
       notifyListeners();
@@ -110,6 +119,7 @@ class Notes with ChangeNotifier {
       _notes.removeAt(index);
       notifyListeners();
       await NoteApi().deleteNote(id);
+      await DatabaseHelper().deleteNote(id);
     } catch (e) {
       _notes.insert(index, tempNote);
       notifyListeners();
