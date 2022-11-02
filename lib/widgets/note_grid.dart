@@ -3,7 +3,6 @@ import 'package:belajar4/providers/notes.dart';
 import 'package:belajar4/widgets/note_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './note_item.dart';
 
 class NotesGrid extends StatefulWidget {
   // const NotesGrid({Key key}) : super(key: key);

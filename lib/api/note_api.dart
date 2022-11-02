@@ -11,7 +11,6 @@ class NoteApi {
     List<Note> notes = [];
     try {
       final response = await http.get(uri);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         final results = json.decode(response.body) as Map<String, dynamic>;
         results.forEach((key, value) {
