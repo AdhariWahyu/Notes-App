@@ -1,27 +1,26 @@
 import 'package:belajar4/database/database_helper.dart';
-import 'package:flutter/cupertino.dart';
 
 class Note {
   final String id;
   final String title;
   final String note;
-  final DateTime updatedAt;
-  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final DateTime? createdAt;
   bool isPinned;
 
   Note(
-      {@required this.id,
-      @required this.title,
-      @required this.note,
-      @required this.updatedAt,
-      @required this.createdAt,
+      {required this.id,
+      required this.title,
+      required this.note,
+      this.updatedAt,
+      this.createdAt,
       this.isPinned = false});
 
   Note.fromDb(Map<String, dynamic> data)
       : id = data[DatabaseHelper.TABLE_NOTES_ID],
         title = data[DatabaseHelper.TABLE_NOTES_TITLE],
         note = data[DatabaseHelper.TABLE_NOTES_NOTE],
-        isPinned = data['test_column_baru'] == 1,
+        isPinned = data[DatabaseHelper.TABLE_NOTES_ISPINNED] == 1,
         updatedAt = DateTime.parse(data[DatabaseHelper.TABLE_NOTES_UPDATEDAT]),
         createdAt = DateTime.parse(data[DatabaseHelper.TABLE_NOTES_CREATEDAT]);
 
@@ -31,18 +30,18 @@ class Note {
       DatabaseHelper.TABLE_NOTES_TITLE: title,
       DatabaseHelper.TABLE_NOTES_NOTE: note,
       DatabaseHelper.TABLE_NOTES_ISPINNED: isPinned ? 1 : 0,
-      DatabaseHelper.TABLE_NOTES_UPDATEDAT: updatedAt.toIso8601String(),
-      DatabaseHelper.TABLE_NOTES_CREATEDAT: createdAt.toIso8601String(),
+      DatabaseHelper.TABLE_NOTES_UPDATEDAT: updatedAt!.toIso8601String(),
+      DatabaseHelper.TABLE_NOTES_CREATEDAT: createdAt!.toIso8601String(),
     };
   }
 
   Note copyWith({
-    String id,
-    String title,
-    String note,
-    DateTime updatedAt,
-    DateTime createdAt,
-    bool isPinned,
+    String? id,
+    String? title,
+    String? note,
+    DateTime? updatedAt,
+    DateTime? createdAt,
+    bool? isPinned,
   }) {
     return Note(
         id: id ?? this.id,

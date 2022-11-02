@@ -7,11 +7,11 @@ import 'package:belajar4/providers/notes.dart';
 
 class NoteItem extends StatefulWidget {
   // const NoteItem({Key key}) : super(key: key);
-  final String id;
+  final String? id;
   final BuildContext ctx;
   const NoteItem({
-    @required this.id,
-    @required this.ctx,
+    required this.id,
+    required this.ctx,
   });
 
   @override

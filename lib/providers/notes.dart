@@ -59,7 +59,7 @@ class Notes with ChangeNotifier {
     return tempListNote;
   }
 
-  Future<void> toggleIsPinned(String id) async {
+  Future<void> toggleIsPinned(String? id) async {
     int index = _notes.indexWhere((note) => note.id == id);
     try {
       if (index >= 0) {
@@ -69,12 +69,12 @@ class Notes with ChangeNotifier {
         await NoteApi().toggleIsPinned(
           id,
           _notes[index].isPinned,
-          _notes[index].updatedAt,
+          _notes[index].updatedAt!,
         );
         await DatabaseHelper().toggleIsPinned(
           id,
           _notes[index].isPinned,
-          _notes[index].updatedAt,
+          _notes[index].updatedAt!,
         );
       }
     } catch (e) {
@@ -86,7 +86,7 @@ class Notes with ChangeNotifier {
 
   Future<void> addNote(Note note) async {
     try {
-      String id = await NoteApi().postNote(note);
+      String? id = await NoteApi().postNote(note);
       note = note.copyWith(id: id);
       await DatabaseHelper().insertNote(note);
       _notes.add(note);
@@ -96,7 +96,7 @@ class Notes with ChangeNotifier {
     }
   }
 
-  Note getNote(String id) {
+  Note getNote(String? id) {
     return _notes.firstWhere((note) => note.id == id);
   }
 
@@ -112,7 +112,7 @@ class Notes with ChangeNotifier {
     }
   }
 
-  Future<void> deleteNote(String id) async {
+  Future<void> deleteNote(String? id) async {
     int index = _notes.indexWhere((note) => note.id == id);
     Note tempNote = _notes[index];
     try {

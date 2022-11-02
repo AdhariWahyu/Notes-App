@@ -13,11 +13,9 @@ class AddOrDetailScreen extends StatefulWidget {
 
 class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   Note _note = Note(
-    id: null,
+    id: '',
     title: '',
     note: '',
-    updatedAt: null,
-    createdAt: null,
   );
 
   bool _init = true;
@@ -26,7 +24,9 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   final _formKey = GlobalKey<FormState>();
 
   void submitNote() async {
-    _formKey.currentState.save();
+    if (_formKey.currentState != null) {
+      _formKey.currentState!.save();
+    }
     setState(() {
       _isLoading = true;
     });
@@ -44,12 +44,12 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
           context: context,
           builder: (builder) {
             return AlertDialog(
-              title: Text('Error'),
+              title: const Text('Error'),
               content: Text(e.toString()),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Tutup'),
+                  child: const Text('Tutup'),
                 ),
               ],
             );
@@ -61,7 +61,7 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
   @override
   void didChangeDependencies() {
     if (_init) {
-      String id = ModalRoute.of(context).settings.arguments as String;
+      String? id = ModalRoute.of(context)!.settings.arguments as String?;
       if (id != null) {
         _note = Provider.of<Notes>(context).getNote(id);
       }
@@ -132,7 +132,7 @@ class _AddOrDetailScreenState extends State<AddOrDetailScreen> {
             Positioned(
               bottom: 10,
               right: 10,
-              child: Text('Terakhir diubah ${_convertDate(_note.updatedAt)}'),
+              child: Text('Terakhir diubah ${_convertDate(_note.updatedAt!)}'),
             ),
         ],
       ),
